@@ -8,15 +8,6 @@
 #define WORKING_STATII "MD"
 #define STATUS_ORDER "UMADRCmd?"
 
-void ignore_sigpipe (void)
-{
-    struct sigaction action;
-    action.sa_handler = SIG_IGN;
-    action.sa_mask = 0;
-    action.sa_flags = 0;
-    sigaction(SIGPIPE, &action, NULL);
-}
-
 void add (char *s, char c)
 {
     char *p;
@@ -49,7 +40,7 @@ int main (void)
     int skipping = 0;
     size_t span;
     outbuf[0] = '\0';
-    ignore_sigpipe();
+    signal(SIGPIPE, SIG_IGN);
     while (fgets(inbuf, sizeof inbuf, stdin)) {
         if (skipping && strchr(inbuf, '\n')) {
             skipping = 0;
