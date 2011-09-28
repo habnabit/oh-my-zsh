@@ -13,7 +13,11 @@ local current_dir='%{$fg[cyan]%}%~%{$reset_color%}'
 local dircount='$(ls -1 | wc -l | sed "s: ::g")'
 local git_branch='$(git_prompt_info)%{$reset_color%}'
 
-function git_prompt_info() {
+function git_prompt_status () {
+  git status --porcelain | $ZSH/parse-git-status
+}
+
+function git_prompt_info () {
   ref=$(git symbolic-ref HEAD 2> /dev/null) || return
   gst=$(git_prompt_status)
   if [ $gst ]; then gst=": ${gst}"; fi
