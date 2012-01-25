@@ -1,6 +1,5 @@
 # -*- sh -*-
-# ZSH Theme - Preview: http://gyazo.com/8becc8a7ed5ab54a0262a470555c3eed.png
-local return_code="%(?..%{$fg[red]%}  %? ↵%{$reset_color%})"
+autoload -U add-zsh-hook
 
 if [[ $(id -u) = 0 ]]; then
   local prompt_char='#'
@@ -13,6 +12,7 @@ local user_host='%{$fg[${host_color}]%}%n@%m%{$reset_color%}'
 local current_dir='%{$fg[cyan]%}%~%{$reset_color%}'
 local dircount='$(ls -1 | wc -l | sed "s: ::g")'
 local git_branch='$(git_prompt_info)%{$reset_color%}'
+local return_code="%(?..%{$fg[red]%}  %? ↵%{$reset_color%})"
 
 function git_prompt_status () {
   git status --porcelain | $ZSH/parse-git-status
@@ -25,15 +25,23 @@ function git_prompt_info () {
   echo "$ZSH_THEME_GIT_PROMPT_PREFIX${ref#refs/heads/}${gst}$ZSH_THEME_GIT_PROMPT_SUFFIX"
 }
 
+typeset -A jobtypes
+jobtypes=(running r suspended s done d)
+function prompt_hab_precmd () {
+  local jobs=''
+  for type in ${(k)jobtypes}; do
+    count=${(Mw)#jobstates#${type}#}
+    if [[ $count > 0 ]]; then
+      jobs="${count}${jobtypes[$type]}${jobs}"
+    fi
+  done
+  job_counts=${jobs:+"%{$fg[magenta]%}[$jobs]%{$reset_color%} "}
+}
+add-zsh-hook precmd prompt_hab_precmd
+
 ZSH_THEME_GIT_PROMPT_PREFIX="  %{$fg[yellow]%}«"
 ZSH_THEME_GIT_PROMPT_SUFFIX="»%{$reset_color%}"
-ZSH_THEME_GIT_PROMPT_UNTRACKED="…"
-ZSH_THEME_GIT_PROMPT_ADDED="a"
-ZSH_THEME_GIT_PROMPT_MODIFIED="m"
-ZSH_THEME_GIT_PROMPT_RENAMED="r"
-ZSH_THEME_GIT_PROMPT_DELETED="d"
-ZSH_THEME_GIT_PROMPT_UNMERGED="M"
 
 PROMPT="
 ╭── ${current_dir}: ${dircount}${git_branch}${return_code}
-╰─ ${user_host} %{$fg[blue]%}${prompt_char}%{$reset_color%} "
+╰─ \${job_counts}${user_host} %{$fg[blue]%}${prompt_char}%{$reset_color%} "
