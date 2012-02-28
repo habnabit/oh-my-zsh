@@ -35,7 +35,7 @@ function prompt_hab_precmd () {
       jobs="${count}${jobtypes[$type]}${jobs}"
     fi
   done
-  job_counts=${jobs:+"%{$fg[magenta]%}[$jobs]%{$reset_color%} "}
+  job_counts=${jobs:+" %{$fg[magenta]%}[$jobs]%{$reset_color%}"}
 }
 add-zsh-hook precmd prompt_hab_precmd
 
@@ -44,4 +44,5 @@ ZSH_THEME_GIT_PROMPT_SUFFIX="»%{$reset_color%}"
 
 PROMPT="
 ╭── ${current_dir}: ${dircount}${git_branch}${return_code}
-╰─ \${job_counts}${user_host} %{$fg[blue]%}${prompt_char}%{$reset_color%} "
+╰─ ${user_host} %{$fg[blue]%}${prompt_char}%{$reset_color%} "
+RPROMPT="\${job_counts}"
